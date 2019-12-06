@@ -1,0 +1,10 @@
+1. centos 
+2. ubuntu
+
+运行build_iso脚本即可, 可自由定制包
+centos: rpm + ks + comps.xml
+ubuntu: ks
+
+对于ubuntu：iso下载请下载server版（no live）
+http://cdimage.ubuntu.com/releases/
+
