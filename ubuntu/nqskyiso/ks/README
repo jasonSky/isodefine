@@ -1,0 +1,14 @@
+1.anaconda-ks.cfg is the original geneated after we install the bootisos on a VM.
+  we can use it as a template for our own emm ks.cfg
+y
+2. ks.cfg is used for build out emm iso, which contains all emm's customization.
+
+3. the encrypted root pwd is generated using algo of sha-512 with salt, see below:
+   python -c 'import crypt; print(crypt.crypt("Nsky@0!6", "$6$nqskysalt"))'
+   
+   for the mdm user 'nationskymgt', we use
+   python -c 'import crypt; print(crypt.crypt("su@ba%ma", "$6$nqskysalt"))'
+   
+
+4. for the disk partition, use xfs file system instead of ext4 in 3.4
+

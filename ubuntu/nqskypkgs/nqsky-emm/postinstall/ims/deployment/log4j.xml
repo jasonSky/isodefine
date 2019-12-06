@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+
+    <!--console-->
+    <appender name="Console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %p [%c] - %m%n"/>
+        </layout>
+    </appender>
+
+
+    <!--Exception appender-->
+    <!--<appender name="exceptionAppender" class="org.apache.log4j.FileAppender">-->
+    <!--<param name="File" value="${catalina.home}/logs/backend-exception.log"/>-->
+    <!--<param name="Append" value="true"/>-->
+    <!--<layout class="org.apache.log4j.PatternLayout">-->
+    <!--<param name="ConversionPattern" value="%d %p [%c] - %m%n"/>-->
+    <!--</layout>-->
+    <!--</appender>-->
+
+    <!-- Action-daily -->
+    <appender name="actionDailyAppender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="${catalina.home}/logs/IDS_AS-server.log"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %p [%c] - %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- API -->
+    <appender name="apiDailyAppender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="${catalina.home}/logs/IDS_AS-API.log"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %p [%c] - %m%n"/>
+        </layout>
+    </appender>
+
+
+    <!-- API logger -->
+    <logger name="com.idsmanager.as.api" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="apiDailyAppender"/>
+    </logger>
+
+
+    <!-- Action logger -->
+    <logger name="com.idsmanager.as.ids" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="actionDailyAppender"/>
+    </logger>
+    <logger name="com.idsmanager.as.oauth" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="actionDailyAppender"/>
+    </logger>
+
+
+    <logger name="org.jose4j" additivity="false">
+        <level value="WARN"/>
+        <appender-ref ref="Console"/>
+    </logger>
+
+
+		 <root>
+		         <level value="DEBUG"/>
+		         <appender-ref ref="actionDailyAppender"/>
+		         <appender-ref ref="apiDailyAppender"/>
+		         <appender-ref ref="Console"/>
+</root>
+
+</log4j:configuration>

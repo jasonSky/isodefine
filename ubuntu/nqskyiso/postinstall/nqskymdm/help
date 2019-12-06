@@ -1,0 +1,30 @@
+/usr/bin/sudo echo "为了安全，您现在正在使用受限制的bash!"
+/usr/bin/sudo echo "当前支持的命令如下:
+cat-----------------system command
+grep----------------system command
+ls------------------system command
+ps------------------system command
+service-------------system command
+systemctl-----------system command
+tail----------------system command
+tailf---------------system command
+telnet--------------system command
+vi------------------system command
+kill----------------system command
+clear---------------system command
+passwd--------------change password
+ifconfig------------show network info
+emmnetwork----------modifynetwork,modifyDNS
+emmcert-------------emm&&sag's cert
+emmims--------------emmims config
+emmconfig-----------emmserver config
+nqskymdm------------show status
+emmport-------------telnet npns server
+emmfirewall---------emm server firewalld
+ping----------------ping
+tracepath-----------tracepath
+reboot--------------reboot
+exit----------------exit
+emmcloud------------premisetocloud
+emmdate-------------emm date config"
+/usr/bin/sudo echo
