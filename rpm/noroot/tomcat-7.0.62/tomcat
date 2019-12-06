@@ -1,0 +1,114 @@
+#!/bin/sh
+# chkconfig: 345 86 10
+# description: Auto-starts tomcat
+# /etc/init.d/tomcat
+# Tomcat auto-start
+# Source function library.
+. /etc/init.d/functions
+# source networking configuration.
+. /etc/sysconfig/network
+RETVAL=0
+# CATALINA_HOME="/usr/apps/apache/tomcat/jakarta-tomcat-4.0.4"
+JAVA_HOME=/usr/local/jdk18
+CATALINA_HOME=/opt/emm/current/tomcat
+CATALINA_BASE=/opt/emm/current/tomcat
+JAVA_OPTS="-server -Xms1024m -Xmx2048m  -XX:PermSize=64M -XX:MaxNewSize=256m -XX:MaxPermSize=128m -Djava.awt.headless=true -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8""
+CATALINA_OPTS="-server -Xms1024m -Xmx2048m -XX:PermSize=128m -XX:MaxPermSize=256m -XX:NewSize=192m -XX:MaxNewSize=384m"
+export JAVA_HOME CATALINA_HOME CATALINA_BASE JAVA_OPTS CATALINA_OPTS
+#TOMCATUSER=root
+TOMCATUSER=tomcat
+#Import the certificate into the *.ipa or *.apk file
+if [ -d /opt/emm/current/tomcat/webapps/NQClientUpdate/Clients/ ];then
+   ANDROID_SHELL_PATH="/usr/local/bin/ClientCertImport/import_android_bks.sh"
+   ANDROID_APP_PATH=`find /opt/emm/current/tomcat/webapps/NQClientUpdate/Clients/android/ -type f | xargs ls -t | grep -i .apk | head -1`
+   IOS_SHELL_PATH="/usr/local/bin/ClientCertImport/import_ios_cer.sh"
+   IOS_APP_PATH=`find /opt/emm/current/tomcat/webapps/NQClientUpdate/Clients/ios/ -type f | xargs ls -t | grep -i .ipa | head -1`
+fi
+
+start()
+{
+        if [ -f $CATALINA_HOME/bin/startup.sh ];
+          then
+            echo $"Starting Tomcat"
+            #/bin/su $TOMCATUSER -c $CATALINA_HOME/bin/startup.sh
+            sudo -u $TOMCATUSER -E sh -c $CATALINA_HOME/bin/startup.sh
+            RETVAL=$?
+            echo " Starting Tomcat Success!"
+           # import certificate
+            importCert
+            return $RETVAL
+        fi
+}
+stop()
+{
+        if [ -f $CATALINA_HOME/bin/shutdown.sh ];
+          then
+            echo $"Stopping Tomcat"
+            #/bin/su $TOMCATUSER -c $CATALINA_HOME/bin/shutdown.sh
+            sudo -u $TOMCATUSER -E sh -c $CATALINA_HOME/bin/shutdown.sh
+            RETVAL=$?
+            sleep 1
+            Processid=`ps -ef | grep tomcat | grep catalina.startup | grep -v PID | wc -l`
+            if [ $Processid -ge 1 ]; then
+               ps -ef | grep tomcat | grep catalina.startup | grep -v PID | awk '{print $2}'|xargs kill -9
+            fi
+            echo "Stopping Tomcat Success!"
+            # [ $RETVAL -eq 0 ] && rm -f /var/lock/...
+            return $RETVAL
+        fi
+}
+rh_status() 
+{    
+       # run checks to determine  if the service is running or use generic status    
+          Processid=`ps -ef | grep tomcat | grep -v grep | grep java | awk '{print $2}'`   
+          RETVAL=$?    
+       if [ ! -z $Processid ]; 
+         then        
+            echo "Service running"        
+            RETVAL=0    
+            else        
+            echo "Service stopped"        
+            RETVAL=3    
+      fi
+}
+
+importCert(){	
+     iosclient=`awk 'BEGIN {FS="ios.client.is.custom="}/ios.client.is.custom/{{print $2}}' /opt/emm/current/config/global.properties`
+     androidclient=`awk 'BEGIN {FS="android.client.is.custom="}/android.client.is.custom/{{print $2}}' /opt/emm/current/config/global.properties`
+     if [ $androidclient == "false" ];then
+        if [ ! -z $ANDROID_APP_PATH ] && [ -f $ANDROID_SHELL_PATH ]; then
+           sh $ANDROID_SHELL_PATH $ANDROID_APP_PATH
+        fi
+     fi
+     if [ $iosclient == "false" ];then	
+        if [ ! -z $IOS_APP_PATH ] && [ -f $IOS_SHELL_PATH ]; then
+           sh $IOS_SHELL_PATH $IOS_APP_PATH
+        fi
+     fi
+}
+ 
+case "$1" in
+ start) 
+        source /usr/local/bin/checkemmbackend
+        start
+        sleep 3m
+        ;;
+ stop)  
+        stop
+        ;;
+ status)	
+        rh_status	
+        ;;
+                                                
+ restart)
+         echo $"Restaring Tomcat"
+         $0 stop
+         sleep 1
+         $0 start
+         ;;
+ *)
+        echo $"Usage: $0 {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
+exit $RETVAL

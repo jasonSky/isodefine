@@ -1,0 +1,6 @@
+1. yum install rpmbuild
+
+#打包
+rpmbuild -bb spec
+#压缩
+rpm2cpio rpm | cpio -div

@@ -1,0 +1,66 @@
+#!/bin/sh
+#chkconfig: 2345 72 60
+
+export JAVA_HOME=/usr/local/jdk18
+
+[ -f /etc/sysconfig/crond ] || { 
+    [ "$1" = "status" ] && exit 4 || exit 6 
+}
+
+RETVAL=0
+prog="activemq"
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+MCMSERVER_HOME="/usr/local/apache-activemq-5.8.0/bin"
+start() {
+    echo "Starting activemq service..."
+    echo
+    cd $MCMSERVER_HOME
+    sudo -u Nationskymgt -E ./$prog start
+}
+
+stop() {
+    Processid=`ps -ef | grep $prog | grep java | awk '{print $2}'`
+    kill -9 $Processid
+    echo "Stopping activemq service..."
+    echo
+}
+
+restart() {
+    stop
+    start
+}
+
+rh_status() {
+    # run checks to determine if the service is running or use generic status
+    Processid=`ps -ef | grep $prog | grep java | awk '{print $2}'`
+    RETVAL=$?
+    if [ ! -z $Processid ]; then
+        echo "Service running"
+        RETVAL=0
+    else
+        echo "Service stopped"
+        RETVAL=3
+    fi
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        rh_status
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart}"
+        exit 2
+esac
+exit $RETVAL
